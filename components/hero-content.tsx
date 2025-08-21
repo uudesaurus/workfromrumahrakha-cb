@@ -27,7 +27,7 @@ export default function HeroContent() {
           className={`inline-flex items-center px-4 py-2 rounded-full bg-white/5 backdrop-blur-xl mb-6 relative border border-white/10 transition-all duration-1000 ${isVisible ? "opacity-100 blur-0 translate-y-0" : "opacity-0 blur-sm translate-y-4"}`}
         >
           <div className="absolute top-0 left-2 right-2 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full" />
-          <span className="text-white/90 text-sm font-light relative z-10">✨ Building for Impact</span>
+          <span className="text-white/90 text-sm font-light relative z-10">✨ builders hub</span>
         </div>
 
         <h1

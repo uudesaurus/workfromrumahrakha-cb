@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 
 interface ShaderBackgroundProps {
   children: React.ReactNode
@@ -9,7 +9,6 @@ interface ShaderBackgroundProps {
 
 export default function ShaderBackground({ children }: ShaderBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const animationRef = useRef<number>()
 
   useEffect(() => {
@@ -27,44 +26,44 @@ export default function ShaderBackground({ children }: ShaderBackgroundProps) {
     resizeCanvas()
     window.addEventListener("resize", resizeCanvas)
 
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({ x: e.clientX, y: e.clientY })
-    }
-
-    window.addEventListener("mousemove", handleMouseMove)
-
     let time = 0
-    const particles: Array<{ x: number; y: number; vx: number; vy: number; size: number; opacity: number }> = []
+    const particles: Array<{ 
+      x: number; 
+      y: number; 
+      size: number; 
+      opacity: number;
+      metallic: number;
+    }> = []
 
-    // Initialize particles
-    for (let i = 0; i < 50; i++) {
+    // Initialize subtle metallic particles
+    for (let i = 0; i < 25; i++) {
       particles.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        size: Math.random() * 2 + 1,
-        opacity: Math.random() * 0.5 + 0.1,
+        size: Math.random() * 2 + 0.5,
+        opacity: Math.random() * 0.15 + 0.05,
+        metallic: Math.random(),
       })
     }
 
     const animate = () => {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.05)"
+      // Create subtle fade effect
+      ctx.fillStyle = "rgba(0, 0, 0, 0.03)"
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-      time += 0.01
+      time += 0.002 // Much slower movement
 
-      // Draw flowing waves
-      for (let i = 0; i < 3; i++) {
+      // Draw subtle flowing waves
+      for (let i = 0; i < 2; i++) {
         ctx.beginPath()
-        ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 - i * 0.02})`
-        ctx.lineWidth = 2 - i * 0.5
+        ctx.strokeStyle = `rgba(255, 255, 255, ${0.03 - i * 0.01})`
+        ctx.lineWidth = 1.5 - i * 0.5
 
-        for (let x = 0; x < canvas.width; x += 5) {
+        for (let x = 0; x < canvas.width; x += 8) {
           const y =
             canvas.height / 2 +
-            Math.sin(x * 0.01 + time * 2 + i * 0.5) * 50 +
-            Math.sin(x * 0.005 + time * 1.5 + i * 0.3) * 30
+            Math.sin(x * 0.003 + time * 0.5 + i * 0.3) * 40 +
+            Math.sin(x * 0.002 + time * 0.3 + i * 0.2) * 25
 
           if (x === 0) ctx.moveTo(x, y)
           else ctx.lineTo(x, y)
@@ -72,60 +71,50 @@ export default function ShaderBackground({ children }: ShaderBackgroundProps) {
         ctx.stroke()
       }
 
-      // Update and draw particles
-      particles.forEach((particle, index) => {
-        particle.x += particle.vx
-        particle.y += particle.vy
+      // Update and draw subtle metallic particles
+      particles.forEach((particle) => {
+        // Very slow movement
+        particle.x += Math.sin(time * 0.1 + particle.metallic) * 0.1
+        particle.y += Math.cos(time * 0.1 + particle.metallic) * 0.1
 
-        // Mouse interaction
-        const dx = mousePos.x - particle.x
-        const dy = mousePos.y - particle.y
-        const distance = Math.sqrt(dx * dx + dy * dy)
+        // Boundary wrap
+        if (particle.x < 0) particle.x = canvas.width
+        if (particle.x > canvas.width) particle.x = 0
+        if (particle.y < 0) particle.y = canvas.height
+        if (particle.y > canvas.height) particle.y = 0
 
-        if (distance < 100) {
-          particle.vx += dx * 0.00001
-          particle.vy += dy * 0.00001
-        }
-
-        // Boundary check
-        if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1
-        if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1
-
-        // Draw particle
+        // Draw subtle metallic particle
         ctx.beginPath()
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(255, 255, 255, ${particle.opacity})`
+        
+        // Create subtle metallic gradient
+        const gradient = ctx.createRadialGradient(
+          particle.x - particle.size/2, 
+          particle.y - particle.size/2, 
+          0, 
+          particle.x, 
+          particle.y, 
+          particle.size
+        )
+        gradient.addColorStop(0, `rgba(255, 255, 255, ${particle.opacity * 0.8})`)
+        gradient.addColorStop(1, `rgba(200, 200, 200, ${particle.opacity * 0.3})`)
+        
+        ctx.fillStyle = gradient
         ctx.fill()
-
-        // Connect nearby particles
-        particles.slice(index + 1).forEach((otherParticle) => {
-          const dx = particle.x - otherParticle.x
-          const dy = particle.y - otherParticle.y
-          const distance = Math.sqrt(dx * dx + dy * dy)
-
-          if (distance < 80) {
-            ctx.beginPath()
-            ctx.moveTo(particle.x, particle.y)
-            ctx.lineTo(otherParticle.x, otherParticle.y)
-            ctx.strokeStyle = `rgba(255, 255, 255, ${0.1 * (1 - distance / 80)})`
-            ctx.lineWidth = 0.5
-            ctx.stroke()
-          }
-        })
       })
 
-      // Draw grid overlay
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.03)"
-      ctx.lineWidth = 1
+      // Draw very subtle grid overlay (much less prominent)
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.015)"
+      ctx.lineWidth = 0.5
 
-      for (let x = 0; x < canvas.width; x += 50) {
+      for (let x = 0; x < canvas.width; x += 120) {
         ctx.beginPath()
         ctx.moveTo(x, 0)
         ctx.lineTo(x, canvas.height)
         ctx.stroke()
       }
 
-      for (let y = 0; y < canvas.height; y += 50) {
+      for (let y = 0; y < canvas.height; y += 120) {
         ctx.beginPath()
         ctx.moveTo(0, y)
         ctx.lineTo(canvas.width, y)
@@ -139,22 +128,20 @@ export default function ShaderBackground({ children }: ShaderBackgroundProps) {
 
     return () => {
       window.removeEventListener("resize", resizeCanvas)
-      window.removeEventListener("mousemove", handleMouseMove)
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current)
       }
     }
-  }, [mousePos])
+  }, [])
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" style={{ mixBlendMode: "screen" }} />
 
-      <div
-        className="absolute inset-0 bg-gradient-to-br from-black via-gray-900/50 to-black animate-pulse"
-        style={{ animationDuration: "4s" }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent opacity-50" />
+      {/* Subtle gradient overlays */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900/20 to-black" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/2 to-transparent opacity-40" />
+      <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-blue-900/3 to-transparent opacity-30" />
 
       {children}
     </div>

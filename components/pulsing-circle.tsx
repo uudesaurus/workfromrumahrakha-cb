@@ -1,35 +1,22 @@
 "use client"
 
-import { PulsingBorder } from "@paper-design/shaders-react"
 import { motion } from "framer-motion"
 
 export default function PulsingCircle() {
   return (
     <div className="absolute bottom-8 right-8 z-30">
       <div className="relative w-20 h-20 flex items-center justify-center">
-        <PulsingBorder
-          colors={["#FFFFFF", "#CCCCCC", "#888888", "#FFFFFF", "#AAAAAA", "#DDDDDD", "#999999"]}
-          colorBack="#00000000"
-          speed={1.5}
-          roundness={1}
-          thickness={0.1}
-          softness={0.2}
-          intensity={5}
-          spotsPerColor={5}
-          spotSize={0.1}
-          pulse={0.1}
-          smoke={0.5}
-          smokeSize={4}
-          scale={0.65}
-          rotation={0}
-          frame={9161408.251009725}
-          style={{
-            width: "60px",
-            height: "60px",
-            borderRadius: "50%",
-          }}
-        />
+        {/* Custom pulsing circle with CSS animations */}
+        <div className="absolute inset-0 w-full h-full">
+          <div className="w-full h-full rounded-full border-2 border-white/20 animate-pulse"></div>
+          <div className="absolute inset-0 w-full h-full rounded-full border border-white/40 animate-ping" style={{ animationDelay: '0.5s' }}></div>
+          <div className="absolute inset-0 w-full h-full rounded-full border border-white/30 animate-ping" style={{ animationDelay: '1s' }}></div>
+        </div>
 
+        {/* Inner glowing circle */}
+        <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/30 shadow-lg shadow-white/20"></div>
+
+        {/* Rotating text circle */}
         <motion.svg
           className="absolute inset-0 w-full h-full"
           viewBox="0 0 100 100"
