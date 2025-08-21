@@ -21,9 +21,34 @@ const instrumentSerif = Instrument_Serif({
 })
 
 export const metadata: Metadata = {
-  title: "v0 App",
-  description: "Created with v0",
+  title: "Work From Rumah Rakha",
+  description: "A collective of builders creating impactful solutions for the world. Rakha, Umar, Uud, and Narin share their projects, thoughts, and innovations.",
   generator: "v0.app",
+  openGraph: {
+    title: "Work From Rumah Rakha",
+    description: "Home for builders, next Silicon Valley. A collective of builders creating impactful solutions for the world.",
+    type: "website",
+    locale: "en_US",
+    siteName: "Work From Rumah Rakha",
+    images: [
+      {
+        url: "/placeholder-logo.png",
+        width: 1200,
+        height: 630,
+        alt: "Work From Rumah Rakha - Home for Builders",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Work From Rumah Rakha",
+    description: "Home for builders, next Silicon Valley. A collective of builders creating impactful solutions for the world.",
+    images: ["/placeholder-logo.png"],
+  },
+  keywords: ["builders", "innovation", "technology", "startup", "Silicon Valley", "impact", "solutions"],
+  authors: [{ name: "Work From Rumah Rakha" }],
+  creator: "Work From Rumah Rakha",
+  publisher: "Work From Rumah Rakha",
 }
 
 export default function RootLayout({

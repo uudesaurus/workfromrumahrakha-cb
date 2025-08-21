@@ -33,6 +33,8 @@ interface PhysicsObject {
   spin: number
   spinDecay: number
   trail: Array<{ x: number; y: number; opacity: number }>
+  revealDelay: number
+  revealed: boolean
 }
 
 export default function FloatingPhotos() {
@@ -40,6 +42,7 @@ export default function FloatingPhotos() {
   const [isVisible, setIsVisible] = useState(false)
   const [isDragging, setIsDragging] = useState(false)
   const [grabbedObject, setGrabbedObject] = useState<number | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
   const canvasRef = useRef<HTMLDivElement>(null)
   const animationRef = useRef<number | null>(null)
   const lastTimeRef = useRef<number>(0)
@@ -102,7 +105,9 @@ export default function FloatingPhotos() {
         airResistance: AIR_RESISTANCE + (Math.random() - 0.5) * 0.002,
         spin: (Math.random() - 0.5) * 0.1,
         spinDecay: 0.995 + (Math.random() - 0.5) * 0.003,
-        trail: []
+        trail: [],
+        revealDelay: 700 + index * 800 + Math.floor(Math.random() * 600),
+        revealed: false,
       })
     })
     
@@ -110,14 +115,39 @@ export default function FloatingPhotos() {
   }, [])
 
   useEffect(() => {
+    // Detect mobile (hide photos to minimize bugs/perf cost)
+    const updateIsMobile = () => {
+      if (typeof window !== 'undefined') {
+        setIsMobile(window.innerWidth < 768)
+      }
+    }
+    updateIsMobile()
+    window.addEventListener('resize', updateIsMobile)
+
     // Initialize when we have container size
     const rect = canvasRef.current?.getBoundingClientRect()
     const width = rect?.width ?? window.innerWidth
     const height = rect?.height ?? window.innerHeight
-    setPhysicsObjects(generatePhysicsObjects(width, height))
+    const objs = generatePhysicsObjects(width, height)
+    setPhysicsObjects(objs)
     
-    const timer = setTimeout(() => setIsVisible(true), 1000)
-    return () => clearTimeout(timer)
+    const timers: Array<number> = []
+    // Schedule individual reveals per object to avoid conflicts with physics updates
+    objs.forEach((o) => {
+      const t = window.setTimeout(() => {
+        setPhysicsObjects((prev) =>
+          prev.map((p) => (p.id === o.id ? { ...p, revealed: true } : p))
+        )
+      }, o.revealDelay)
+      timers.push(t)
+    })
+
+    const timerVisible = window.setTimeout(() => setIsVisible(true), 300)
+    return () => {
+      timers.forEach((t) => window.clearTimeout(t))
+      window.clearTimeout(timerVisible)
+      window.removeEventListener('resize', updateIsMobile)
+    }
   }, [generatePhysicsObjects])
 
   // Mouse event handlers
@@ -227,8 +257,9 @@ export default function FloatingPhotos() {
       const height = rect?.height ?? window.innerHeight
 
       const newObjs = prev.map(obj => {
-        if (obj.isGrabbed || obj.isDragging) {
-          return { ...obj, trail: [...obj.trail] }
+        // Do not update physics for unrevealed or grabbed/dragging objects
+        if (!obj.revealed || obj.isGrabbed || obj.isDragging) {
+          return { ...obj, trail: obj.revealed ? [...obj.trail] : [] }
         }
 
         const newTrail = [...obj.trail, { x: obj.x, y: obj.y, opacity: 1 }]
@@ -267,8 +298,8 @@ export default function FloatingPhotos() {
         for (let j = i + 1; j < newObjs.length; j++) {
           const a = newObjs[i]
           const b = newObjs[j]
-          // Skip grabbed objects
-          if (a.isGrabbed || a.isDragging || b.isGrabbed || b.isDragging) continue
+          // Only collide revealed, free objects
+          if (!a.revealed || !b.revealed || a.isGrabbed || a.isDragging || b.isGrabbed || b.isDragging) continue
 
           const dx = b.x - a.x
           const dy = b.y - a.y
@@ -350,10 +381,12 @@ export default function FloatingPhotos() {
     }
   }, [isDragging, handleMouseMove, handleMouseUp])
 
+  if (isMobile) return null
+
   return (
     <div 
       ref={canvasRef}
-      className="fixed top-0 right-0 w-full h-full pointer-events-none z-30"
+      className="fixed top-0 right-0 w-full h-full pointer-events-none z-30 hidden md:block"
     >
       {physicsObjects.map((obj) => (
         <div
@@ -362,25 +395,30 @@ export default function FloatingPhotos() {
           style={{
             left: obj.x - obj.radius,
             top: obj.y - obj.radius,
-            transform: `scale(${obj.scale}) rotate(${obj.rotation}deg)`,
+            transform: `translateY(${obj.revealed ? 0 : -8}px) scale(${obj.revealed ? obj.scale : obj.scale * 0.9}) rotate(${obj.rotation}deg)`,
+            opacity: obj.revealed ? 1 : 0,
+            filter: obj.revealed ? 'blur(0px)' : 'blur(24px)',
+            transition: 'opacity 1600ms ease-out, transform 1600ms ease-out, filter 1600ms ease-out',
             zIndex: obj.isGrabbed ? 60 : 40,
+            pointerEvents: obj.revealed ? 'auto' : 'none',
           }}
           onMouseDown={(e) => handleMouseDown(e, obj.id)}
         >
           {/* Motion trail synchronized behind */}
-          {obj.trail.map((point, index) => (
-            <div
-              key={index}
-              className="absolute w-40 h-40 rounded-3xl"
-              style={{
-                left: point.x - obj.x,
-                top: point.y - obj.y,
-                opacity: point.opacity * 0.2,
-                filter: "blur(4px)",
-                background: "rgba(255,255,255,0.10)",
-              }}
-            />
-          ))}
+          {obj.revealed &&
+            obj.trail.map((point, index) => (
+              <div
+                key={index}
+                className="absolute w-40 h-40 rounded-3xl"
+                style={{
+                  left: point.x - obj.x,
+                  top: point.y - obj.y,
+                  opacity: point.opacity * 0.2,
+                  filter: "blur(4px)",
+                  background: "rgba(255,255,255,0.10)",
+                }}
+              />
+            ))}
 
           {/* Main photo object */}
           <div
@@ -404,6 +442,7 @@ export default function FloatingPhotos() {
                 v: ({obj.vx.toFixed(1)}, {obj.vy.toFixed(1)}) • bounces: {obj.bounceCount}
               </div>
             </div>
+
             {/* Grab indicator */}
             {obj.isGrabbed && (
               <div className="absolute inset-0 flex items-center justify-center">
