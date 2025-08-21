@@ -5,102 +5,171 @@ import Footer from "@/components/footer"
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black text-white">
       <Header />
 
       {/* Hero Section */}
-      <section className="py-16 px-6 bg-background">
+      <section className="pt-32 pb-24 px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-light text-foreground mb-6">
-            <span className="instrument font-medium">About</span> Us
+          <h1 className="text-6xl md:text-7xl font-light text-white mb-8 tracking-tight">
+            About the <span className="font-medium">House</span>
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            We are Rakha, Umar, Uud, and Narin—a group of passionate builders who frequent 'Rumah Rakha' to create
-            impactful projects and share ideas on tech and the future.
+          <p className="text-xl md:text-2xl text-white/70 max-w-3xl mx-auto leading-relaxed font-light">
+            Rumah Rakha isn't just a place—it's where builders come to build. 
+            We're a bunch of friends who happen to be obsessed with creating stuff that matters.
           </p>
         </div>
       </section>
 
       {/* Team Profiles */}
-      <section className="py-16 px-6 bg-card">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-light text-card-foreground mb-4">
-              <span className="instrument">Meet</span> the Team
+      <section className="py-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl font-light text-white mb-6 tracking-tight">
+              Who's always there in the <span className="font-medium">house</span>
             </h2>
-            <p className="text-muted-foreground text-sm md:text-base">
-              Four minds united by a shared vision of positive impact
+            <p className="text-lg text-white/60 max-w-2xl mx-auto">
+              The usual suspects who make this place feel like home
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
             {/* Rakha */}
-            <div className="bg-background rounded-lg border border-border p-6 text-center">
-              <div className="w-24 h-24 bg-muted rounded-full mx-auto mb-4 flex items-center justify-center">
-                <span className="text-2xl font-medium text-muted-foreground">R</span>
+            <div className="group">
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 text-center transition-all duration-300 hover:bg-white/10 hover:border-white/20">
+                <div className="w-24 h-24 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full mx-auto mb-6 flex items-center justify-center border border-white/20">
+                  <span className="text-3xl font-light text-white">R</span>
+                </div>
+                <h3 className="text-xl font-medium text-white mb-2">Rakha</h3>
+                <p className="text-sm text-blue-400/80 mb-4 font-medium tracking-wide">House Owner</p>
+                <p className="text-sm text-white/70 leading-relaxed">
+                  The guy who owns the place. Also happens to be pretty good at building things that scale. 
+                  When he's not coding, he's probably thinking about the next big thing.
+                </p>
               </div>
-              <h3 className="text-xl font-medium text-foreground mb-2">Rakha</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Visionary leader and founder of our collective. Passionate about creating scalable solutions that drive
-                meaningful change in communities worldwide.
-              </p>
             </div>
 
             {/* Umar */}
-            <div className="bg-background rounded-lg border border-border p-6 text-center">
-              <div className="w-24 h-24 bg-muted rounded-full mx-auto mb-4 flex items-center justify-center">
-                <span className="text-2xl font-medium text-muted-foreground">U</span>
+            <div className="group">
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 text-center transition-all duration-300 hover:bg-white/10 hover:border-white/20">
+                <div className="w-24 h-24 bg-gradient-to-br from-green-500/20 to-blue-500/20 rounded-full mx-auto mb-6 flex items-center justify-center border border-white/20">
+                  <span className="text-3xl font-light text-white">U</span>
+                </div>
+                <h3 className="text-xl font-medium text-white mb-2">Umar</h3>
+                <p className="text-sm text-green-400/80 mb-4 font-medium tracking-wide">Full-Stack Wizard</p>
+                <p className="text-sm text-white/70 leading-relaxed">
+                  Can build anything from scratch. Frontend, backend, databases—you name it. 
+                  Also the guy who fixes things when they break at 3 AM.
+                </p>
               </div>
-              <h3 className="text-xl font-medium text-foreground mb-2">Umar</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Full-stack developer with expertise in modern web technologies. Focuses on building robust, user-centric
-                applications that solve real-world problems.
-              </p>
             </div>
 
             {/* Uud */}
-            <div className="bg-background rounded-lg border border-border p-6 text-center">
-              <div className="w-24 h-24 bg-muted rounded-full mx-auto mb-4 flex items-center justify-center">
-                <span className="text-2xl font-medium text-muted-foreground">U</span>
+            <div className="group">
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 text-center transition-all duration-300 hover:bg-white/10 hover:border-white/20">
+                <div className="w-24 h-24 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-full mx-auto mb-6 flex items-center justify-center border border-white/20">
+                  <span className="text-3xl font-light text-white">U</span>
+                </div>
+                <h3 className="text-xl font-medium text-white mb-2">Uud</h3>
+                <p className="text-sm text-yellow-400/80 mb-4 font-medium tracking-wide">The Maybe Guy</p>
+                <p className="text-sm text-white/70 leading-relaxed">
+                  "Maybe we should try this?" "Maybe that will work?" Always has ideas, 
+                  sometimes they're good, sometimes they're... interesting. But hey, at least he's thinking.
+                </p>
               </div>
-              <h3 className="text-xl font-medium text-foreground mb-2">Uud</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Creative designer and user experience specialist. Crafts intuitive interfaces and compelling visual
-                narratives that make technology accessible to all.
-              </p>
             </div>
 
             {/* Narin */}
-            <div className="bg-background rounded-lg border border-border p-6 text-center">
-              <div className="w-24 h-24 bg-muted rounded-full mx-auto mb-4 flex items-center justify-center">
-                <span className="text-2xl font-medium text-muted-foreground">N</span>
+            <div className="group">
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 text-center transition-all duration-300 hover:bg-white/10 hover:border-white/20">
+                <div className="w-24 h-24 bg-gradient-to-br from-red-500/20 to-pink-500/20 rounded-full mx-auto mb-6 flex items-center justify-center border border-white/20">
+                  <span className="text-3xl font-light text-white">N</span>
+                </div>
+                <h3 className="text-xl font-medium text-white mb-2">Narin</h3>
+                <p className="text-sm text-red-400/80 mb-4 font-medium tracking-wide">Finance Bro</p>
+                <p className="text-sm text-white/70 leading-relaxed">
+                  Talks about markets, investments, and "the next big thing." Probably owns crypto, 
+                  definitely thinks he's Warren Buffett. But hey, someone's got to keep us financially literate.
+                </p>
               </div>
-              <h3 className="text-xl font-medium text-foreground mb-2">Narin</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Strategic innovator and thought leader. Specializes in emerging technologies and their potential to
-                reshape industries and improve lives.
-              </p>
+            </div>
+
+            {/* Lio */}
+            <div className="group">
+              <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 text-center transition-all duration-300 hover:bg-white/10 hover:border-white/20">
+                <div className="w-24 h-24 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 rounded-full mx-auto mb-6 flex items-center justify-center border border-white/20">
+                  <span className="text-3xl font-light text-white">L</span>
+                </div>
+                <h3 className="text-xl font-medium text-white mb-2">Lio</h3>
+                <p className="text-sm text-purple-400/80 mb-4 font-medium tracking-wide">Jogja Local</p>
+                <p className="text-sm text-white/70 leading-relaxed">
+                  Lives in Jogja and thinks that makes him automatically cultured. Always talking about 
+                  "the creative energy here" while we're stuck in traffic. Claims he's "networking" 
+                  but really just eating gudeg and posting Instagram stories.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Mission Statement */}
-      <section className="py-16 px-6 bg-background">
+      <section className="py-24 px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-light text-foreground mb-6">
-            Our <span className="instrument font-medium">Mission</span>
+          <h2 className="text-4xl md:text-5xl font-light text-white mb-8 tracking-tight">
+            Why we <span className="font-medium">build</span>
           </h2>
-          <p className="text-lg text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-            This site collects what we've built out of love, to inspire and improve the world. We believe that
-            technology, when guided by passion and purpose, has the power to create lasting positive change.
+          <p className="text-xl text-white/70 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
+            Look, we're not trying to save the world or anything dramatic. We just like building things that work, 
+            that people actually use, and that make life a little bit better. Simple as that.
           </p>
-          <div className="bg-card rounded-lg border border-border p-8 max-w-2xl mx-auto">
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              "We don't build for profit or recognition. We build because we believe in a better tomorrow, and we know
-              that every line of code, every design decision, and every innovative idea brings us one step closer to
-              that future."
+          <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-12 max-w-3xl mx-auto">
+            <p className="text-lg text-white/80 leading-relaxed italic font-light">
+              "We build because we can't not build. It's not about money or fame—it's about solving problems 
+              and making something that didn't exist before. Plus, it's fun as hell."
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* What We Do */}
+      <section className="py-24 px-6">
+        <div className="max-w-5xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-light text-white mb-8 tracking-tight">
+            What we <span className="font-medium">actually</span> do
+          </h2>
+          <p className="text-xl text-white/70 mb-16 max-w-3xl mx-auto leading-relaxed font-light">
+            We build stuff. Sometimes it's apps, sometimes it's websites, sometimes it's just experiments 
+            that go nowhere. But we're always building, always learning, always pushing forward.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 transition-all duration-300 hover:bg-white/10 hover:border-white/20">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-full mx-auto mb-6 flex items-center justify-center border border-white/20">
+                <span className="text-2xl">🚀</span>
+              </div>
+              <h3 className="text-xl font-medium text-white mb-4">Build</h3>
+              <p className="text-white/70 leading-relaxed">
+                We build things that solve real problems. No fluff, just working code.
+              </p>
+            </div>
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 transition-all duration-300 hover:bg-white/10 hover:border-white/20">
+              <div className="w-16 h-16 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-full mx-auto mb-6 flex items-center justify-center border border-white/20">
+                <span className="text-2xl">📚</span>
+              </div>
+              <h3 className="text-xl font-medium text-white mb-4">Learn</h3>
+              <p className="text-white/70 leading-relaxed">
+                Every project teaches us something new. We're always students.
+              </p>
+            </div>
+            <div className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 transition-all duration-300 hover:bg-white/10 hover:border-white/20">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full mx-auto mb-6 flex items-center justify-center border border-white/20">
+                <span className="text-2xl">💡</span>
+              </div>
+              <h3 className="text-xl font-medium text-white mb-4">Share</h3>
+              <p className="text-white/70 leading-relaxed">
+                What we learn, we share. Knowledge is worthless if you keep it to yourself.
+              </p>
+            </div>
           </div>
         </div>
       </section>
