@@ -68,7 +68,7 @@ html {
 }
         `}</style>
       </head>
-      <body className={`${figtree.variable} ${instrumentSerif.variable}`}>{children}</body>
+      <body className={`${figtree.variable} ${instrumentSerif.variable} md:pt-20`}>{children}</body>
     </html>
   )
 }

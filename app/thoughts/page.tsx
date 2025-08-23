@@ -1,10 +1,42 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
+import { createClient, Entry, EntrySkeletonType } from "contentful"
+import ReactMarkdown from "react-markdown"
 
-const thoughts = [
+// TypeScript interfaces for Contentful Article content model
+interface AuthorFields {
+  name: string;
+  [key: string]: any;
+}
+
+interface AuthorSkeleton extends EntrySkeletonType {
+  contentTypeId: 'author';
+  fields: AuthorFields;
+}
+
+type AuthorEntry = Entry<AuthorSkeleton, undefined, string>;
+
+interface ArticleFields {
+  title: string;
+  author: any; // Using any for now since Contentful returns complex linked entries
+  content: string;
+  // tags: string[]; // Commented out as it doesn't exist in Contentful yet
+  // excerpt: string; // Commented out as it doesn't exist in Contentful yet
+  // readTime: string; // Commented out as it doesn't exist in Contentful yet
+}
+
+interface ArticleSkeleton extends EntrySkeletonType {
+  contentTypeId: 'article';
+  fields: ArticleFields;
+}
+
+type ArticleEntry = Entry<ArticleSkeleton, undefined, string>;
+
+// Fallback hardcoded data for development/testing
+const fallbackThoughts = [
   {
     id: 1,
     title: "The Future of Human-AI Collaboration",
@@ -149,14 +181,72 @@ const allTags = [
 export default function ThoughtsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedTag, setSelectedTag] = useState("All")
+  const [articles, setArticles] = useState<ArticleEntry[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const filteredThoughts = thoughts.filter((thought) => {
+  const client = createClient({
+    space: process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID!,
+    accessToken: process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN!,
+  })
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const response = await client.getEntries<ArticleSkeleton>({
+          content_type: 'article',
+          include: 2, // Include linked entries (authors)
+          order: ['-sys.createdAt'] // Order by creation date, newest first
+        })
+        
+        setArticles(response.items)
+      } catch (err) {
+        console.error('Error fetching articles:', err)
+        setError(err instanceof Error ? err.message : 'Failed to load articles')
+        // Use fallback data on error
+        setArticles([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchArticles()
+  }, [])
+
+  // Helper function to generate excerpt from content
+  const generateExcerpt = (content: string, maxLength: number = 200) => {
+    if (content.length <= maxLength) return content
+    return content.substring(0, maxLength).trim() + '...'
+  }
+
+  // Helper function to estimate read time
+  const estimateReadTime = (content: string) => {
+    const wordsPerMinute = 200
+    const wordCount = content.split(/\s+/).length
+    const minutes = Math.ceil(wordCount / wordsPerMinute)
+    return `${minutes} min read`
+  }
+
+  const filteredThoughts = articles.filter((article) => {
+    const title = String(article.fields.title || '')
+    const content = String(article.fields.content || '')
+    const authors = Array.isArray(article.fields.author) ? article.fields.author : []
+    
     const matchesSearch =
-      thought.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      thought.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      thought.author.some((author) => author.toLowerCase().includes(searchTerm.toLowerCase()))
+      title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      authors.some((author: any) => {
+        const authorName = author?.fields?.name || ''
+        return String(authorName).toLowerCase().includes(searchTerm.toLowerCase())
+      })
 
-    const matchesTag = selectedTag === "All" || thought.tags.includes(selectedTag)
+    // For now, since tags don't exist in Contentful, we'll show all articles when "All" is selected
+    // and hide articles when specific tags are selected (until tags are implemented)
+    const matchesTag = selectedTag === "All"
+    // TODO: Implement tag filtering when tags field is added to Contentful
+    // const matchesTag = selectedTag === "All" || article.fields.tags?.includes(selectedTag)
 
     return matchesSearch && matchesTag
   })
@@ -191,21 +281,25 @@ export default function ThoughtsPage() {
             />
           </div>
 
-          {/* Filter Tags */}
+          {/* Filter Tags - Temporarily disabled until tags are added to Contentful */}
           <div className="flex flex-wrap gap-2">
-            {allTags.map((tag) => (
+            <button
+              onClick={() => setSelectedTag("All")}
+              className="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 bg-primary text-primary-foreground"
+            >
+              All Articles
+            </button>
+            {/* TODO: Enable tag filtering when tags field is added to Contentful */}
+            {/* {allTags.slice(1).map((tag) => (
               <button
                 key={tag}
                 onClick={() => setSelectedTag(tag)}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 ${
-                  selectedTag === tag
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-background text-foreground hover:bg-accent hover:text-accent-foreground border border-border"
-                }`}
+                className="px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 bg-background text-foreground hover:bg-accent hover:text-accent-foreground border border-border opacity-50 cursor-not-allowed"
+                disabled
               >
                 {tag}
               </button>
-            ))}
+            ))} */}
           </div>
         </div>
       </section>
@@ -213,38 +307,83 @@ export default function ThoughtsPage() {
       {/* Thoughts List */}
       <section className="py-16 px-6 bg-background">
         <div className="max-w-4xl mx-auto">
-          {filteredThoughts.length > 0 ? (
+          {loading ? (
             <div className="space-y-8">
-              {filteredThoughts.map((thought) => (
-                <article key={thought.id} className="bg-card rounded-lg border border-border p-8">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-card rounded-lg border border-border p-8 animate-pulse">
+                  <div className="h-6 bg-muted rounded w-3/4 mb-4"></div>
+                  <div className="h-4 bg-muted rounded w-1/2 mb-4"></div>
+                  <div className="space-y-2 mb-6">
+                    <div className="h-4 bg-muted rounded"></div>
+                    <div className="h-4 bg-muted rounded w-5/6"></div>
+                    <div className="h-4 bg-muted rounded w-4/6"></div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="flex space-x-2">
+                      <div className="h-6 bg-muted rounded w-12"></div>
+                      <div className="h-6 bg-muted rounded w-16"></div>
+                    </div>
+                    <div className="h-8 bg-muted rounded w-20"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground mb-4">Error loading articles: {error}</p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="px-4 py-2 bg-accent text-accent-foreground rounded-full text-sm font-medium hover:bg-primary hover:text-primary-foreground transition-colors duration-200"
+              >
+                Retry
+              </button>
+            </div>
+          ) : filteredThoughts.length > 0 ? (
+            <div className="space-y-8">
+              {filteredThoughts.map((article) => (
+                <article key={article.sys.id} className="bg-card rounded-lg border border-border p-8">
                   <div className="mb-4">
                     <h2 className="text-2xl font-medium text-card-foreground mb-3">
-                      <a href={`/thoughts/${thought.id}`} className="hover:text-accent transition-colors duration-200">
-                        {thought.title}
+                      <a href={`/thoughts/${article.sys.id}`} className="hover:text-accent transition-colors duration-200">
+                        {article.fields.title}
                       </a>
                     </h2>
 
                     <div className="flex items-center text-sm text-muted-foreground mb-4">
-                      <span>By {thought.author.join(", ")}</span>
+                      <span>
+                        By {(() => {
+                          const authors = article.fields.author;
+                          if (Array.isArray(authors) && authors.length > 0) {
+                            return authors.map((author: any) => author.fields?.name || 'Unknown Author').join(', ');
+                          }
+                          return 'Unknown Author';
+                        })()}
+                      </span>
                       <span className="mx-2">•</span>
-                      <span>{new Date(thought.date).toLocaleDateString()}</span>
+                      <span>{new Date(article.sys.createdAt).toLocaleDateString()}</span>
                       <span className="mx-2">•</span>
-                      <span>{thought.readTime}</span>
+                      <span>{estimateReadTime(article.fields.content)}</span>
                     </div>
                   </div>
 
-                  <p className="text-muted-foreground leading-relaxed mb-6">{thought.excerpt}</p>
+                  <span className="text-muted-foreground leading-relaxed mb-6">
+                    {<ReactMarkdown>{generateExcerpt(article.fields.content)}</ReactMarkdown>}
+                  </span>
 
                   <div className="flex items-center justify-between">
                     <div className="flex flex-wrap gap-2">
-                      {thought.tags.map((tag) => (
+                      {/* TODO: Add tags when available in Contentful */}
+                      {/* {article.fields.tags?.map((tag) => (
                         <span key={tag} className="px-2 py-1 bg-muted text-muted-foreground rounded text-xs">
                           {tag}
                         </span>
-                      ))}
+                      ))} */}
+                      <span className="px-2 py-1 bg-muted text-muted-foreground rounded text-xs">
+                        Article
+                      </span>
                     </div>
                     <a
-                      href={`/thoughts/${thought.id}`}
+                      href={`/thoughts/${article.sys.id}`}
                       className="px-4 py-2 bg-accent text-accent-foreground rounded-full text-sm font-medium hover:bg-primary hover:text-primary-foreground transition-colors duration-200"
                     >
                       Read More
